@@ -7,7 +7,7 @@ from math import sqrt
 import math
 
 # Подключаемся к игре
-conn = krpc.connect(name='Автопилот Венера-7')
+conn = krpc.connect(name='Автопилот Psyche')
 vessel = conn.space_center.active_vessel
 
 # Настраиваем файлы для записи данных

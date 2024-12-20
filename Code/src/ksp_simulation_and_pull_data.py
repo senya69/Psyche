@@ -6,7 +6,7 @@ import numpy as np
 import pathlib
 
 # Подключаемся к игре
-conn = krpc.connect(name='Автопилот Венера-7')
+conn = krpc.connect(name='Автопилот Psyche')
 vessel = conn.space_center.active_vessel
 
 # Создаем файл для записи данных
@@ -84,19 +84,24 @@ with open(PATH, mode='w', newline='') as file:
             vessel.auto_pilot.target_pitch_and_heading(0, 90)
 
         
-        # Проверяем есть ли топливо в одном из движков ступени
-        has_fuel = False
-        for engine in vessel.parts.engines:
-            if engine.has_fuel and engine.part.title == stage_main_engines[stage]:
-                has_fuel = True
-                break
+        # # Проверяем есть ли топливо в одном из движков ступени
+        # has_fuel = False
+        # for engine in vessel.parts.engines:
+        #     if engine.has_fuel and engine.part.title == stage_main_engines[stage]:
+        #         has_fuel = True
+        #         break
         
         # Если топлива нет, активируем следующую ступень
-        if not has_fuel:
+        # if ut == 145:
+        #     #функция отключения двигателей#
+        if ut == 148:
             vessel.control.activate_next_stage()
             stage += 1
             print("Отделение ступени")
-        
+
+        # if ut == 145:
+            #функция отключения двигателей#
+
         if stage == 3:
             print('Конец')
             vessel.control.throttle = 0.0

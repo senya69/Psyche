@@ -10,8 +10,10 @@ rho_0 = 1.225  # плотность воздуха на уровне моря (�
 
 # Масса и характеристики ступеней
 stages = [
-    {"wet_mass": 59410 + 15600, "fuel_mass": 46779, "thrust": 1_410_000, "burn_time": 105, "ejection_force": 200},
-    {"wet_mass": 36672, "fuel_mass": 12400, "thrust": 470_000, "burn_time": 83, "ejection_force": 250},
+    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200},
+    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200},
+    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200},
+    {"wet_mass": 110570, "fuel_mass": 103500, "thrust": 981_000, "burn_time": 394, "ejection_force": 200},
 ]
 
 # Функция для расчета плотности воздуха в зависимости от высотыs
