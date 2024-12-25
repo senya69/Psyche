@@ -15,11 +15,10 @@ C_d = 3.3  # Коэффициент аэродинамического сопр�
 
 # Масса и характеристики ступеней
 stages = [
-    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200},
-    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200},
-    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200},
-    {"wet_mass": 110570, "fuel_mass": 103500, "thrust": 981_000, "burn_time": 394, "ejection_force": 200},
-
+    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200, "area": A},
+    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200, "area": A},
+    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200, "area": A},
+    {"wet_mass": 110570, "fuel_mass": 103500, "thrust": 981_000, "burn_time": 394, "ejection_force": 200, "area": A},
 ]
 
 # Функция для расчета плотности воздуха в зависимости от высоты
