@@ -16,8 +16,8 @@ C_d = 3.3  # Коэффициент аэродинамического сопр�
 
 # Масса и характеристики ступеней
 stages = [
-    {"wet_mass": 871660, "fuel_mass": 675000, "thrust": 1_708_000, "burn_time": 148, "ejection_force": 400, "area": 20},
-    {"wet_mass": 435830, "fuel_mass": 337500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200, "area": 10},
+    {"wet_mass": 87166, "fuel_mass": 67500, "thrust": 1_708_00, "burn_time": 14.8, "ejection_force": 40, "area": 2},
+    {"wet_mass": 43583, "fuel_mass": 33750, "thrust": 854_00, "burn_time": 23.7, "ejection_force": 200, "area": 1}
 ]
 
 
@@ -28,8 +28,8 @@ def air_density(h):
 
 # Функция для расчета угла наклона (pitch) в зависимости от высоты
 def calculate_pitch(altitude):
-    if altitude < 70000:
-        return 90 * (1 - altitude / 70000)  # Чем выше высота, тем меньше наклон
+    if altitude < 15000:
+        return 90 * (1 - altitude / 15000)  # Чем выше высота, тем меньше наклон
     return 0
 
 
@@ -86,7 +86,7 @@ def rocket_equations(y, t, stage_index):
 
 
 # Начальные условия
-start_mass = 1_307_490
+start_mass = 1_307_49
 initial_conditions = [0, 0, 0, 0]  # x_coord, horizontal_velocity, y_coord, vertical_velocity
 
 # Время интегрирования

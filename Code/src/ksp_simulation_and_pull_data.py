@@ -17,7 +17,7 @@ with open(PATH, mode="w", newline="") as file:
                      "Total Velocity", "Drag", "Displacement"])
 
     # Подготовка к запуску
-    vessel.control.sas = False
+    vessel.control.sas = True
     vessel.control.rcs = False
     vessel.control.throttle = 1.0
 
@@ -73,30 +73,25 @@ with open(PATH, mode="w", newline="") as file:
         # Наклон ракеты в зависимости от высоты
         vessel.auto_pilot.target_roll = 0
         vessel.auto_pilot.engage()
+        if altitude == 70000:
+            vessel.control.activate_next_stage()  # Отделяем бустеры -- 5, основной двигатель еще работает
+            print("Отделение бустеров")
         if altitude < 150000:
             target_pitch = 90 * (1 - altitude / 150000)  # Чем выше высота, тем меньше наклон
             vessel.auto_pilot.target_pitch_and_heading(target_pitch, 90)
         else:
             vessel.auto_pilot.target_pitch_and_heading(0, 90)
-
-        if elapsed_time == 145.0:
-            vessel.control.activate_next_stage() # Отделяем бустеры -- 5, основной двигатель еще работает
-            print("Отделение бустеров")
-
-        if elapsed_time == 235.0:
-            vessel.control.activate_next_stage() # Отделяем основной двигатель -- 4
-            print("Отделение основного двигателя")
-
-        if elapsed_time == 244.0:
-            vessel.control.activate_next_stage() # Запускаем первый двигатель второй стадии -- 3
-            print("Запуск двигателя в вакууме")
-
-        if elapsed_time == 264.0:
-            vessel.control.activate_next_stage() # Отделяем обтекатель -- 2
-            print("Отделяем обтекатель")
-
-        if elapsed_time == 506.0:
-            vessel.control.throttle = 0.0
-            print("Остановка двигателя, летим по орбите")
-            print("Конец")
             break
+
+    vessel.control.throttle = 0.0
+    time.sleep(3)
+    vessel.control.activate_next_stage()  # Отделяем основной двигатель -- 4
+    print("Отделение основного двигателя")
+    time.sleep(5)
+    vessel.control.activate_next_stage()  # Запускаем первый двигатель второй стадии -- 3
+    vessel.control.throttle = 1.0
+    print("Запуск двигателя в вакууме")
+    time.sleep(20)
+    vessel.control.activate_next_stage()  # Отделяем обтекатель -- 2
+    print("Отделяем обтекатель")
+    print("Конец")

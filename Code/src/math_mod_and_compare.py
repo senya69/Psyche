@@ -4,19 +4,18 @@ import csv
 import pandas as pd
 import pathlib
 
-
 # Константы
 g = 9.81  # ускорение свободного падения (м/с²)
 rho_0 = 1.225  # плотность воздуха на уровне моря (кг/м³)
 G = 6.67430e-11  # Гравитационная постоянная
 M_kerbin = 5.2915793e22  # Масса Кербина в кг
 R_kerbin = 600000  # Радиус Кербина в метрах
-A = 10.0  # Площадь поперечного сечения ракеты, m² (примерное значение)
+A = 30.0  # Площадь поперечного сечения ракеты, m² (примерное значение)
 
 # Масса и характеристики ступеней
 stages = [
-    {"wet_mass": 871660, "fuel_mass": 675000, "thrust": 1_708_000, "burn_time": 148, "ejection_force": 400, "area": 20},
-    {"wet_mass": 435830, "fuel_mass": 337500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200, "area": 10},
+    {"wet_mass": 871660, "fuel_mass": 675000, "thrust": 1_708_000, "burn_time": 148, "ejection_force": 400},
+    {"wet_mass": 435830, "fuel_mass": 337500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200},
 ]
 
 
@@ -27,8 +26,8 @@ def air_density(h):
 
 # Функция для расчета угла наклона (pitch) в зависимости от высоты
 def calculate_pitch(altitude):
-    if altitude < 70000:
-        return 90 * (1 - altitude / 70000)  # Чем выше высота, тем меньше наклон
+    if altitude < 150000:
+        return 90 * (1 - altitude / 150000)  # Чем выше высота, тем меньше наклон
     return 0
 
 
