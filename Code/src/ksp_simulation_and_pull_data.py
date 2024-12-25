@@ -6,12 +6,12 @@ import numpy as np
 import pathlib
 
 # Подключаемся к игре
-conn = krpc.connect(name='Автопилот Psyche')
+conn = krpc.connect(name="Автопилот Psyche")
 vessel = conn.space_center.active_vessel
 
 # Создаем файл для записи данных
 PATH = str(pathlib.Path(__file__).parent.joinpath("ksp_flight_data.csv"))
-with open(PATH, mode='w', newline='') as file:
+with open(PATH, mode="w", newline="") as file:
     writer = csv.writer(file)
     writer.writerow(["Time", "Altitude", "Vertical Velocity", "Horizontal Velocity",
                      "Total Velocity", "Drag", "Displacement"])
@@ -20,40 +20,36 @@ with open(PATH, mode='w', newline='') as file:
     vessel.control.sas = False
     vessel.control.rcs = False
     vessel.control.throttle = 1.0
-    
-    print('Запуск через 3...')
-    time.sleep(1)
-    print('2...')
-    time.sleep(1)
-    print('1...')
-    time.sleep(1)
-    
-    # Счетчик времени
-    start_time = conn.space_center.ut
+
 
     # Начальная позиция для расчета смещения
     initial_position = vessel.position(vessel.orbit.body.reference_frame)
     # Длина вектора
     initial_position_vec_length = np.linalg.norm(initial_position)
-    
-    vessel.control.activate_next_stage()  # Запуск двигателей первой ступени
-    time.sleep(0.3)
-    vessel.control.activate_next_stage()  # Освобождение от стартовых клемм
-    time.sleep(0.7)
-    
-    stage_main_engines = ['', 'R7 B V G D Engine Cluster', 'R7 Block A Engine', 'R7 Block I']
-    stage = 1
-    
+
+    vessel.control.activate_next_stage()  # Запуск двигателей первой ступени -- 7
+    print("Запуск через 3...")
+    time.sleep(1)
+    print("2...")
+    time.sleep(1)
+    print("1...")
+    time.sleep(1)
+    vessel.control.activate_next_stage()  # Освобождение от стартовых клемм -- 6
+
+    # Счетчик времени
+    start_time = conn.space_center.ut
+    stage_main_engines = ["", "Merlin 1D (B5) x18 boosters", "Merlin 1D (B5) x9 core", "Merlin 1D (B5) Vacuum", "Ion Thruster"]
+
     print(f"Пуск!\nВремя старта: {start_time:.2f} с")
-    
+
     # Основной цикл полета
     while True:
         # Настоящее время
         ut = conn.space_center.ut
-        
+
         # Прошедшее время с начала
         elapsed_time = ut - start_time
-        
+
         # Сбор данных
         altitude = vessel.flight().mean_altitude
         speed = vessel.flight(vessel.orbit.body.reference_frame).speed
@@ -62,49 +58,45 @@ with open(PATH, mode='w', newline='') as file:
 
         # Текущее положение для расчета смещения
         current_position = vessel.position(vessel.orbit.body.reference_frame)
-        
+
         # Расчет смещения
         current_position = current_position / np.linalg.norm(current_position) * initial_position_vec_length
         horizontal_displacement = np.linalg.norm(current_position - initial_position)
-        
+
         # Получение скоростей
         vertical_speed = vessel.flight(vessel.orbit.body.reference_frame).vertical_speed
         horizontal_speed = vessel.flight(vessel.orbit.body.reference_frame).horizontal_speed
-        
+
         # Записываем данные в файл
         writer.writerow([elapsed_time, altitude, vertical_speed, horizontal_speed, speed, drag, horizontal_displacement])
 
         # Наклон ракеты в зависимости от высоты
         vessel.auto_pilot.target_roll = 0
         vessel.auto_pilot.engage()
-        if altitude < 70000:
-            target_pitch = 90 * (1 - altitude / 70000)  # Чем выше высота, тем меньше наклон
+        if altitude < 150000:
+            target_pitch = 90 * (1 - altitude / 150000)  # Чем выше высота, тем меньше наклон
             vessel.auto_pilot.target_pitch_and_heading(target_pitch, 90)
         else:
             vessel.auto_pilot.target_pitch_and_heading(0, 90)
 
-        
-        # # Проверяем есть ли топливо в одном из движков ступени
-        # has_fuel = False
-        # for engine in vessel.parts.engines:
-        #     if engine.has_fuel and engine.part.title == stage_main_engines[stage]:
-        #         has_fuel = True
-        #         break
-        
-        # Если топлива нет, активируем следующую ступень
-        # if ut == 145:
-        #     #функция отключения двигателей#
-        if ut == 148:
-            vessel.control.activate_next_stage()
-            stage += 1
-            print("Отделение ступени")
+        if elapsed_time == 145.0:
+            vessel.control.activate_next_stage() # Отделяем бустеры -- 5, основной двигатель еще работает
+            print("Отделение бустеров")
 
-        # if ut == 145:
-            #функция отключения двигателей#
+        if elapsed_time == 235.0:
+            vessel.control.activate_next_stage() # Отделяем основной двигатель -- 4
+            print("Отделение основного двигателя")
 
-        if stage == 3:
-            print('Конец')
+        if elapsed_time == 244.0:
+            vessel.control.activate_next_stage() # Запускаем первый двигатель второй стадии -- 3
+            print("Запуск двигателя в вакууме")
+
+        if elapsed_time == 264.0:
+            vessel.control.activate_next_stage() # Отделяем обтекатель -- 2
+            print("Отделяем обтекатель")
+
+        if elapsed_time == 506.0:
             vessel.control.throttle = 0.0
+            print("Остановка двигателя, летим по орбите")
+            print("Конец")
             break
-        
-        time.sleep(0.1)

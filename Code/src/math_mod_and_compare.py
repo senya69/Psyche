@@ -4,6 +4,7 @@ import csv
 import pandas as pd
 import pathlib
 
+
 # Константы
 g = 9.81  # ускорение свободного падения (м/с²)
 rho_0 = 1.225  # плотность воздуха на уровне моря (кг/м³)
@@ -14,16 +15,15 @@ A = 10.0  # Площадь поперечного сечения ракеты, m
 
 # Масса и характеристики ступеней
 stages = [
-    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200},
-    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 148, "ejection_force": 200},
-    {"wet_mass": 435830, "fuel_mass": 409500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200},
-    {"wet_mass": 110570, "fuel_mass": 103500, "thrust": 981_000, "burn_time": 394, "ejection_force": 200},
-
+    {"wet_mass": 871660, "fuel_mass": 675000, "thrust": 1_708_000, "burn_time": 148, "ejection_force": 400, "area": 20},
+    {"wet_mass": 435830, "fuel_mass": 337500, "thrust": 854_000, "burn_time": 237, "ejection_force": 200, "area": 10},
 ]
+
 
 # Функция для расчета плотности воздуха в зависимости от высоты
 def air_density(h):
     return rho_0 * np.exp(-h / 5000)
+
 
 # Функция для расчета угла наклона (pitch) в зависимости от высоты
 def calculate_pitch(altitude):
@@ -31,20 +31,24 @@ def calculate_pitch(altitude):
         return 90 * (1 - altitude / 70000)  # Чем выше высота, тем меньше наклон
     return 0
 
+
 # Функция для расчета гравитационного ускорения
 def gravitational_acceleration(height):
     # Расстояние от центра Кербина до ракеты
     r = R_kerbin + height
     # Гравитационное ускорение на этой высоте
-    return G * M_kerbin / r**2
+    return G * M_kerbin / r ** 2
+
 
 # Коэффициент сопротивления
 def get_drag_coefficient(angle_of_attack):
     # Примерная функция, возвращающая коэффициент сопротивления для заданного угла атаки
     return 0.5 + 0.01 * angle_of_attack
 
+
 def calculate_angle_of_attack(vertical_velocity, horizontal_velocity):
     return np.degrees(np.arctan2(vertical_velocity, horizontal_velocity))
+
 
 # Инициализация переменных
 vertical_velocity = 0
@@ -52,11 +56,11 @@ horizontal_velocity = 0
 altitude = 0
 displacement = 0
 time = 0
-mass = 111_683
+mass = 1_307_490
 
 # Открываем файл для записи данных
 PATH = str(pathlib.Path(__file__).parent.joinpath("flight_data.csv"))
-KSP_PATH = str(pathlib.Path(__file__).parent.joinpath("ksp_flight_data_existing.csv"))
+KSP_PATH = str(pathlib.Path(__file__).parent.joinpath("ksp_flight_data.csv"))
 
 with open(PATH, mode='w', newline='') as file:
     writer = csv.writer(file)
@@ -65,14 +69,13 @@ with open(PATH, mode='w', newline='') as file:
 
     # Симуляция полета по ступеням
     for i in range(len(stages)):
-        
-        #Получаем данные по ступеням
+
+        # Получаем данные по ступеням
         stage = stages[i]
         wet_mass = stage["wet_mass"]
         fuel_mass = stage["fuel_mass"]
         dry_mass = wet_mass - fuel_mass
-        
-        
+
         thrust = stage["thrust"]
         burn_time = stage["burn_time"]
         ejection_force = stage["ejection_force"]
@@ -84,26 +87,27 @@ with open(PATH, mode='w', newline='') as file:
             # Разделение тяги на вертикальную и горизонтальную составляющие
             thrust_vertical = thrust * np.sin(np.radians(pitch))
             thrust_horizontal = thrust * np.cos(np.radians(pitch))
-            
+
             # Радиус от центра Кербина
             radius = R_kerbin + altitude
-            
+
             # Центробежная сила
-            centrifugal_force = (mass * horizontal_velocity**2) / radius
-            
+            centrifugal_force = (mass * horizontal_velocity ** 2) / radius
+
             # Сила тяжести
             force_gravity = mass * gravitational_acceleration(altitude)
 
             # Расчет коэффициента сопротивления
             angle_of_attack = calculate_angle_of_attack(vertical_velocity, horizontal_velocity)
-            C_drag = 3.3 #get_drag_coefficient(angle_of_attack)
-            
+            C_drag = 3.3  # get_drag_coefficient(angle_of_attack)
+
             # Плотность воздуха на текущей высоте
-            air_density_value = air_density(altitude)  
-            
+            air_density_value = air_density(altitude)
+
             # Расчет сопротивления
-            drag_force = 0.5 * air_density_value * (vertical_velocity**2 + horizontal_velocity**2) * C_drag * (10 if stage == 1 else 8)
-            
+            drag_force = 0.5 * air_density_value * (vertical_velocity ** 2 + horizontal_velocity ** 2) * C_drag * (
+                20 if stage == 1 else 10)
+
             # Расчет ускорений
             acceleration_vertical = (thrust_vertical - force_gravity + centrifugal_force -
                                      drag_force * np.sin(np.radians(pitch))) / mass
@@ -114,25 +118,25 @@ with open(PATH, mode='w', newline='') as file:
             horizontal_velocity += acceleration_horizontal
             altitude += vertical_velocity
             displacement += horizontal_velocity
-            
+
             # Линейное расходование топлива
-            mass -= fuel_mass / burn_time 
+            mass -= fuel_mass / burn_time
 
             # Длина общего вектора скорости
-            total_velocity = np.sqrt(vertical_velocity**2 + horizontal_velocity**2)
+            total_velocity = np.sqrt(vertical_velocity ** 2 + horizontal_velocity ** 2)
 
             # Логгирование данных в файл
-            writer.writerow([time, altitude, vertical_velocity, horizontal_velocity, total_velocity, 
+            writer.writerow([time, altitude, vertical_velocity, horizontal_velocity, total_velocity,
                              drag_force, displacement])
-            
+
             # Логгирование данных для графиков
             time += 1
 
         # Применение силы выброса после сгорания топлива
         vertical_velocity += (ejection_force / mass) * np.sin(np.radians(pitch))
         horizontal_velocity += (ejection_force / mass) * np.cos(np.radians(pitch))
-        
-        #Сброс сухой массы ступени
+
+        # Сброс сухой массы ступени
         mass -= dry_mass
 
 # Получения данных по мат модели
@@ -146,7 +150,6 @@ total_velocity_data = data['Total Velocity']
 drag_data = data['Drag']
 displacement_data = data['Displacement']
 
-
 # Получение данных из симуляции KSP
 data = pd.read_csv(KSP_PATH)
 
@@ -157,7 +160,6 @@ horizontal_velocity_data_ksp = data['Horizontal Velocity']
 total_velocity_data_ksp = data['Total Velocity']
 drag_data_ksp = data['Drag']
 displacement_data_ksp = data['Displacement']
-
 
 # Построение графиков
 plt.figure(figsize=(15, 15))
@@ -211,7 +213,6 @@ plt.plot(time_data_ksp, displacement_data_ksp, color='orange')
 plt.title('Смещение по горизонтали от времени')
 plt.xlabel('Время (с)')
 plt.ylabel('Смещение по X (м)')
-
 
 plt.tight_layout()
 plt.show()

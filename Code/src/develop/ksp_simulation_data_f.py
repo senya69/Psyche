@@ -42,7 +42,7 @@ with open('src/develop/ksp_flight_data_f.csv', mode='w', newline='') as file:
     initial_position = vessel.position(vessel.orbit.body.reference_frame)
 
     # Подготовка к запуску
-    #vessel.control.sas = True
+    vessel.control.sas = True
     vessel.control.rcs = False
     vessel.control.throttle = 1.0
     
@@ -126,8 +126,8 @@ with open('src/develop/ksp_flight_data_f.csv', mode='w', newline='') as file:
         # Гравитационный маневр
         vessel.auto_pilot.target_roll = 0
         vessel.auto_pilot.engage()
-        if altitude < 70000:
-            target_pitch = 90 * (1 - altitude / 70000)  # Чем выше высота, тем меньше наклон
+        if altitude < 250000:
+            target_pitch = 90 * (1 - altitude / 250000)  # Чем выше высота, тем меньше наклон
             vessel.auto_pilot.target_pitch_and_heading(target_pitch, 90)
         else:
             vessel.auto_pilot.target_pitch_and_heading(0, 90)
@@ -161,7 +161,7 @@ with open('src/develop/ksp_flight_data_f.csv', mode='w', newline='') as file:
             print("Stage separation")
 
         # Проверка на орбиту и завершение
-        if vessel.orbit.apoapsis_altitude > 150000:
+        if vessel.orbit.apoapsis_altitude > 250000:
             vessel.control.throttle = 0.0
             print('Достигнута требуемая апоцентрическая высота.')
             break
